@@ -1,21 +1,19 @@
 from __future__ import division
-
-from os import listdir
 from os.path import isfile, join, splitext
-from scipy.io import wavfile
 from pylab import *
 import soundfile as sf
-import math
 import sys
 
 maleFemaleFreq = [120, 232]
 TS = 3  # time for simple method
-maleMinMax = [60, 160]
-femaleMinMax = [180, 270]
-HPSLoop = 5
+M_MinMax = [55, 155]
+K_MinMax = [175, 270]
+HPSLoop = 6
 
-def who(result,MinMax):
+
+def who(result, MinMax):
     return sum(result[MinMax[0]:MinMax[1]])
+
 
 def HPS(s):
     T = 3  # time for HPS method
@@ -50,16 +48,14 @@ def HPS(s):
 
 
 def loadfiles(new_file):
-    file =  splitext(new_file)[1] == ".wav"
-    print(file)
     samples = []
     maleCount = 0
     femaleCount = 0
-    data, rate = sf.read(file)
+    data, rate = sf.read(new_file)
     sig = [mean(d) for d in data]
-    samples.append({'name': file, 'nameGender': file[-5:-4], 'signal': sig, 'sampleRate': rate})
+    samples.append({'name': new_file, 'nameGender': new_file[-5:-4], 'signal': sig, 'sampleRate': rate})
 
-    if file[-5:-4] == "M":
+    if new_file[-5:-4] == "M":
         maleCount += 1
     else:
         femaleCount += 1
@@ -85,8 +81,6 @@ def launchAlgorithm(samples, counters):
                 recognizedFemale += 1
             else:
                 print("Algorithm returned wrong value: ", s['name'])
-
-
 
 
 if __name__ == '__main__':

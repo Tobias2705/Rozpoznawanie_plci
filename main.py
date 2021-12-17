@@ -1,20 +1,19 @@
 from __future__ import division
-
 from os import listdir
 from os.path import isfile, join, splitext
-from scipy.io import wavfile
 from pylab import *
 import soundfile as sf
-import math
 
 maleFemaleFreq = [120, 232]
-TS = 3  # time for simple method
+
 M_MinMax = [55, 155]
 K_MinMax = [175, 270]
 HPSLoop = 6
 
-def who(result,MinMax):
+
+def who(result, MinMax):
     return sum(result[MinMax[0]:MinMax[1]])
+
 
 def HPS(s):
     T = 3  # time for HPS method
@@ -23,8 +22,8 @@ def HPS(s):
 
     if (T > len(signal) / rate): T = len(signal) / rate
     signal = signal[max(0, int(len(signal) / 2) - int(T / 2 * rate)):min(len(signal) - 1,
-                                                                                  int(len(signal) / 2) + int(
-                                                                                      T / 2 * rate))]
+                                                                         int(len(signal) / 2) + int(
+                                                                             T / 2 * rate))]
     partLen = int(rate)
     parts = [signal[i * partLen:(i + 1) * partLen] for i in range(int(T))]
     resultParts = []
