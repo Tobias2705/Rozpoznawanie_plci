@@ -6,12 +6,13 @@ from scipy.io import wavfile
 from pylab import *
 import soundfile as sf
 import math
+import sys
 
 maleFemaleFreq = [120, 232]
 TS = 3  # time for simple method
-M_MinMax = [55, 155]
-K_MinMax = [175, 270]
-HPSLoop = 6
+maleMinMax = [60, 160]
+femaleMinMax = [180, 270]
+HPSLoop = 5
 
 def who(result,MinMax):
     return sum(result[MinMax[0]:MinMax[1]])
@@ -19,14 +20,14 @@ def who(result,MinMax):
 def HPS(s):
     T = 3  # time for HPS method
     rate = s['sampleRate']
-    signal = s['signal']
+    dataVoice = s['signal']
 
-    if (T > len(signal) / rate): T = len(signal) / rate
-    signal = signal[max(0, int(len(signal) / 2) - int(T / 2 * rate)):min(len(signal) - 1,
-                                                                                  int(len(signal) / 2) + int(
+    if (T > len(dataVoice) / rate): T = len(dataVoice) / rate
+    dataVoice = dataVoice[max(0, int(len(dataVoice) / 2) - int(T / 2 * rate)):min(len(dataVoice) - 1,
+                                                                                  int(len(dataVoice) / 2) + int(
                                                                                       T / 2 * rate))]
     partLen = int(rate)
-    parts = [signal[i * partLen:(i + 1) * partLen] for i in range(int(T))]
+    parts = [dataVoice[i * partLen:(i + 1) * partLen] for i in range(int(T))]
     resultParts = []
     for data in parts:
         if (len(data) == 0): continue
@@ -44,28 +45,24 @@ def HPS(s):
         if (len(res) != len(result)): continue
         result += res
 
-    if (who(result, M_MinMax) > who(result, K_MinMax)): return 'M'
+    if (who(result, maleMinMax) > who(result, femaleMinMax)): return 'M'
     return 'K'
 
 
-def loadfiles(path):
-    files = [f for f in listdir(path) if isfile(join(path, f)) and splitext(f)[1] == ".wav"]
-    print(files)
+def loadfiles(new_file):
+    file =  splitext(new_file)[1] == ".wav"
+    print(file)
     samples = []
     maleCount = 0
     femaleCount = 0
-    for fil in files:
-        p = path + '/' + fil
+    data, rate = sf.read(file)
+    sig = [mean(d) for d in data]
+    samples.append({'name': file, 'nameGender': file[-5:-4], 'signal': sig, 'sampleRate': rate})
 
-        data, rate = sf.read(p)
-
-        sig = [mean(d) for d in data]
-        samples.append({'name': fil, 'nameGender': fil[-5:-4], 'signal': sig, 'sampleRate': rate})
-
-        if fil[-5:-4] == "M":
-            maleCount += 1
-        else:
-            femaleCount += 1
+    if file[-5:-4] == "M":
+        maleCount += 1
+    else:
+        femaleCount += 1
 
     counters = {"maleCount": maleCount, "femaleCount": femaleCount}
     return samples, counters
@@ -78,7 +75,7 @@ def launchAlgorithm(samples, counters):
 
     for s in samples:
         gender = HPS(s)
-
+        print(gender)
         if gender == s['nameGender']:
             wellRecognized += 1
 
@@ -89,15 +86,11 @@ def launchAlgorithm(samples, counters):
             else:
                 print("Algorithm returned wrong value: ", s['name'])
 
-    samplesCount = counters['maleCount'] + counters['femaleCount']
-    print("Statystyka:")
-    print("Liczba prawidłowo rozpoznanych Mężczyzn: ", recognizedMale, "/", counters['maleCount'])
-    print("Liczba prawidłowo rozpoznanych Kobiet: ", recognizedFemale, "/", counters['femaleCount'])
-    print("Zgodność: ", wellRecognized, "/", samplesCount, " (", wellRecognized / samplesCount * 100, "%)")
+
 
 
 if __name__ == '__main__':
-    samples, counters = loadfiles("train")
+    samples, counters = loadfiles(sys.argv[1])
     # print(samples)
     # print(counters)
     launchAlgorithm(samples, counters)
