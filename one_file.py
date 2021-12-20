@@ -4,12 +4,10 @@ from pylab import *
 import soundfile as sf
 import sys
 
-maleFemaleFreq = [120, 232]
 TS = 3  # time for simple method
 M_MinMax = [55, 155]
 K_MinMax = [175, 270]
 HPSLoop = 6
-
 
 def who(result, MinMax):
     return sum(result[MinMax[0]:MinMax[1]])
@@ -85,6 +83,4 @@ def launchAlgorithm(samples, counters):
 
 if __name__ == '__main__':
     samples, counters = loadfiles(sys.argv[1])
-    # print(samples)
-    # print(counters)
     launchAlgorithm(samples, counters)
