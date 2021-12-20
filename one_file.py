@@ -43,7 +43,7 @@ def HPS(s):
         if (len(res) != len(result)): continue
         result += res
 
-    if (who(result, maleMinMax) > who(result, femaleMinMax)): return 'M'
+    if (who(result, M_MinMax) > who(result, K_MinMax)): return 'M'
     return 'K'
 
 
